@@ -14,7 +14,6 @@
 ![Power BI](https://img.shields.io/badge/Power_BI-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
-
 ![Status](https://img.shields.io/badge/status-completed-brightgreen)
 ![Layer](https://img.shields.io/badge/architecture-medallion-blueviolet)
 ![Model](https://img.shields.io/badge/model-star_schema-orange)
