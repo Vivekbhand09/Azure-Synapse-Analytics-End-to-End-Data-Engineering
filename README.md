@@ -554,22 +554,33 @@ FROM OPENROWSET(
 
 ## 11. Repository Structure
 
+This repository is connected to **Synapse Studio Git integration**, so every published artifact is stored as JSON.
+
 ```text
 .
-├── README.md
-├── sql/
-│   ├── 01_Ext_Resources.sql      # credential, data sources, file formats
-│   ├── 02_schemas.sql            # silver and gold schemas
-│   ├── 03_silverTable.sql        # silver external table
-│   ├── 04_dimensions.sql         # gold dimension tables (CETAS)
-│   └── 05_Fact.sql               # gold fact table (CETAS)
-├── pipelines/
-│   ├── RawIngestion.json         # Copy activity: CSV → Parquet
-│   └── TransformationLayer.json  # Data Flow + Script activity
-├── images/                       # screenshots (pipelines, data flow, lake layout)
-└── docs/
-    └── Azure_Data_Warehouse_Complete_Guide.md   # detailed study guide
+├── Utils/                    # Supporting / helper files
+├── credential/               # Workspace managed identity credential
+├── dataflow/                 # Mapping Data Flow (Filter → Derive → Derive → Sink)
+├── dataset/                  # DS_rawCSV, DS_Parquet, DS_ParquetBronze, DS_Silver
+├── integrationRuntime/       # Integration runtime used to run activities
+├── linkedService/            # LS_Datalake, LS_Serverless, ExtLake
+├── pipeline/                 # RawIngestion, TransformationLayer
+├── sqlscript/                # Ext_Resources, schemas, silverTable, dimensions, Fact
+├── publish_config.json       # Synapse publish configuration
+└── README.md
 ```
+
+| Folder | Contents | Used in |
+|---|---|---|
+| `pipeline/` | `RawIngestion` (Copy activity), `TransformationLayer` (Data Flow + Script activity) | Bronze and Silver |
+| `dataflow/` | Spark-based transformation logic | Silver |
+| `dataset/` | Pointers to CSV and Parquet locations in the lake | Bronze and Silver |
+| `linkedService/` | Connections to the data lake and serverless SQL (managed identity) | All layers |
+| `sqlscript/` | External resources, schemas, silver external table, dimension and fact CETAS scripts | Silver and Gold |
+| `credential/` | Workspace managed identity credential | Security |
+| `integrationRuntime/` | Compute that runs pipeline activities | Orchestration |
+| `publish_config.json` | Tells Synapse which branch holds the published workspace | CI/CD |
+
 
 ---
 
