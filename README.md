@@ -230,7 +230,7 @@ The Gold dimensions in this project are fully rebuilt on each run (Type 1-like).
 | Sink dataset | `DS_Parquet` | Parquet, same linked service |
 | Sink path | `bronze/sales/orderDay0.parquet` | |
 
-** Source : 
+### Source :
 
 ![Screenshot](Utils/source.png)
 
