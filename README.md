@@ -230,6 +230,8 @@ The Gold dimensions in this project are fully rebuilt on each run (Type 1-like).
 | Sink dataset | `DS_Parquet` | Parquet, same linked service |
 | Sink path | `bronze/sales/orderDay0.parquet` | |
 
+![Screenshot](Utils/source.png)
+
 ```
 source/*.csv  ──(Copy Activity)──►  bronze/sales/orderDay0.parquet
 ```
@@ -237,6 +239,10 @@ source/*.csv  ──(Copy Activity)──►  bronze/sales/orderDay0.parquet
 - Converts CSV to **Parquet** (smaller, typed and faster for analytics).
 - No business logic here: Bronze stays as close to the source as possible.
 - One linked service is **reused** by multiple datasets.
+
+![Screenshot](Utils/rawingestion.png)
+
+![Screenshot](Utils/bronze.png)
 
 ### Step 4: Silver Layer (Transformation)
 
@@ -249,6 +255,8 @@ source/*.csv  ──(Copy Activity)──►  bronze/sales/orderDay0.parquet
 | 3 | Derived column `Domain` | `split(CustomerEmail, '@')` (returns an array) |
 | 4 | Derived column `FetchDomain` | `slice(Domain, 2)[1]` (extracts the email domain) |
 | 5 | Sink `SilverDestination` | Dataset `DS_Silver` → `silver/enriched/` |
+
+![Screenshot](Utils/dataflow.png)
 
 How the email expression works:
 
@@ -279,6 +287,8 @@ silver_df.write.mode("overwrite").parquet(
 </details>
 
 ### Step 5: Serverless SQL External Objects
+
+![Screenshot](Utils/scripts.png)
 
 Created a serverless SQL database **`SalesDWH`** and a linked service `ExtLake` (managed identity) to the lake. Script **`Ext_Resources`**:
 
@@ -360,6 +370,9 @@ This script is attached to the `TransformationLayer` pipeline as a **Script acti
 ```
 [ Data Flow: Filter → Derive → Derive → Sink ]  ──on success──►  [ Script: create silver.silverTable ]
 ```
+![Screenshot](Utils/transformationlayer.png)
+
+![Screenshot](Utils/silver.png)
 
 **Silver layer complete:** the data is cleaned, enriched and queryable with SQL.
 
@@ -448,6 +461,10 @@ IF NOT EXISTS (SELECT * FROM sys.tables t JOIN sys.schemas s ON t.schema_id = s.
 - **Grain:** one row per order line.
 - **LEFT JOIN** keeps every transaction even if a dimension match is missing (no silent row loss).
 - The fact stores **only integers and numbers**, which makes it compact and fast.
+
+![Screenshot](Utils/gold.png)
+
+![Screenshot](Utils/dwh.png)
 
 **Gold layer complete.**
 
