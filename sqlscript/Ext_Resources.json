@@ -1,0 +1,17 @@
+{
+	"name": "Ext_Resources",
+	"properties": {
+		"content": {
+			"query": "-- CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'Synapse#Learn2026!Key';\n\n--------------------------------\n--- Databricks Scoped Credential\n--------------------------------\n\nCREATE DATABASE SCOPED CREDENTIAL viv_creds\nWITH IDENTITY = 'Managed Identity'\n\n--------------------------------\n--- External Data Source\n--------------------------------\n\nCREATE EXTERNAL DATA SOURCE silver_source\nWITH\n(\n   LOCATION = 'https://azurewarehouselake.dfs.core.windows.net/silver/',\n   CREDENTIAL = viv_creds\n)\n\nCREATE EXTERNAL DATA SOURCE gold_source\nWITH\n(\n   LOCATION = 'https://azurewarehouselake.dfs.core.windows.net/gold/',\n   CREDENTIAL = viv_creds\n)\n\n--------------------------------\n--- External File Format\n--------------------------------\n\nCREATE EXTERNAL FILE FORMAT parquet\nWITH \n(\n    FORMAT_TYPE= PARQUET,\n    DATA_COMPRESSION= 'org.apache.hadoop.io.compress.SnappyCodec'\n)\n\nCREATE EXTERNAL FILE FORMAT delta\nWITH \n(\n    FORMAT_TYPE= DELTA\n)\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "SalesDWH",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

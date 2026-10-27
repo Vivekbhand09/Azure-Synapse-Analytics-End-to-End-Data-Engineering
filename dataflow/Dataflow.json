@@ -1,0 +1,70 @@
+{
+	"name": "Dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Ds_ParquetBronze",
+						"type": "DatasetReference"
+					},
+					"name": "sourceBronze"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_Silver",
+						"type": "DatasetReference"
+					},
+					"name": "SilverDestination"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterLessThan100"
+				},
+				{
+					"name": "derivedColumn"
+				},
+				{
+					"name": "FetchOnlyDomain"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderID as string,",
+				"          OrderDate as date,",
+				"          CustomerID as string,",
+				"          CustomerName as string,",
+				"          CustomerEmail as string,",
+				"          ProductID as string,",
+				"          ProductName as string,",
+				"          ProductCategory as string,",
+				"          RegionID as string,",
+				"          RegionName as string,",
+				"          Country as string,",
+				"          Quantity as string,",
+				"          UnitPrice as long,",
+				"          TotalAmount as long",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> sourceBronze",
+				"sourceBronze filter(UnitPrice >= 100) ~> filterLessThan100",
+				"filterLessThan100 derive(Domain = split(CustomerEmail,'@')) ~> derivedColumn",
+				"derivedColumn derive(Domain = slice(Domain,2)[1]) ~> FetchOnlyDomain",
+				"FetchOnlyDomain sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SilverDestination"
+			]
+		}
+	}
+}
