@@ -524,24 +524,6 @@ GROUP BY c.Domain
 ORDER BY Revenue DESC;
 ```
 
-**Data quality checks**
-
-```sql
--- Row counts should match
-SELECT (SELECT COUNT(*) FROM silver.silverTable) AS silver_rows,
-       (SELECT COUNT(*) FROM gold.FactTable)     AS fact_rows;
-
--- No orphan keys expected
-SELECT COUNT(*) AS null_keys
-FROM gold.FactTable
-WHERE DimCustomerKey IS NULL OR DimProductKey IS NULL
-   OR DimGeographyKey IS NULL OR DimOrdersKey IS NULL;
-
--- Totals should reconcile
-SELECT SUM(TotalAmount) FROM silver.silverTable;
-SELECT SUM(TotalAmount) FROM gold.FactTable;
-```
-
 **Ad hoc exploration with OPENROWSET**
 
 ```sql
@@ -567,35 +549,6 @@ FROM OPENROWSET(
 - **Idempotent scripts:** `IF NOT EXISTS` checks against `sys.tables` and `sys.schemas` make reruns safe.
 - **Dimensional modeling:** grain, facts vs dimensions, surrogate keys, star vs snowflake, additive vs non-additive measures.
 - **Incremental loading and SCD:** watermark, file-based and CDC patterns, plus SCD Types 1, 2 and 3 for tracking history.
-
----
-
-## 9. Challenges and Fixes
-
-| Challenge | Learning / Fix |
-|---|---|
-| 403 authorization errors on a new storage account | The workspace identity needs an RBAC role (`Storage Blob Data Contributor`) and a few minutes to propagate |
-| Data flow array indexing | Data flow expressions start at index **1**; PySpark starts at **0** |
-| External table must match the physical folder | The `LOCATION` in the external table must point to the same folder the data flow sink writes to |
-| `split()` produces an array column | SQL external tables expect scalar types. Select only scalar columns (for example `FetchDomain` renamed to `Domain`) before the sink |
-| CETAS cannot overwrite existing output | Drop the external table **and** delete the target folder before rerunning |
-| Surrogate keys from `ROW_NUMBER()` change on rebuild | Fine for full refresh. Production needs a stable key strategy (hash key or key map table) |
-| Fact row count higher than source | Caused by duplicate business keys in a dimension (join fan-out). Verify with the row-count checks above |
-
----
-
-## 10. Future Improvements
-
-- [ ] **Incremental loading:** parameterize file names and folders (date partitions), add schedule and storage-event triggers
-- [ ] **Third pipeline `GoldLayer`** for dimensions and fact, then a **master pipeline** chaining Bronze → Silver → Gold
-- [ ] **`DimDate`** calendar dimension for time-based analysis
-- [ ] **Delta Lake** in Silver/Gold for ACID upserts and **SCD Type 2** with `MERGE`
-- [ ] **Stable surrogate keys** (hash of business key or key map)
-- [ ] Use `INT`/`DECIMAL(18,2)` appropriately (`Quantity` as `INT`, price columns as `DECIMAL`)
-- [ ] Treat `OrderID` as a **degenerate dimension** in the fact table
-- [ ] **Data quality framework** with automated checks and failure alerts
-- [ ] **Power BI** report on top of `gold.*`
-- [ ] **CI/CD** with Synapse Git integration, **Key Vault** for secrets, **private endpoints**
 
 ---
 
@@ -639,9 +592,6 @@ FROM OPENROWSET(
 ## 13. Author
 
 **Vivek**
-Aspiring Azure Data Engineer, focused on cloud data warehousing, Spark and dimensional modeling.
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)](https://github.com/)
+Aspiring Azure Data Engineer .
 
 If you found this project useful, consider giving it a star.
